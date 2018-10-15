@@ -49,6 +49,7 @@ public class HPI extends MavenArtifact {
      * Which of the lineage did this come from?
      */
     public final PluginHistory history;
+    private String pluginSite = "http://updates.jenkins-ci.org/download/plugins/";
 
     private final Pattern developersPattern = Pattern.compile("([^:]*):([^:]*):([^,]*),?");
 
@@ -61,7 +62,7 @@ public class HPI extends MavenArtifact {
      * Download a plugin via more intuitive URL. This also helps us track download counts.
      */
     public URL getURL() throws MalformedURLException {
-        return new URL("http://updates.jenkins-ci.org/download/plugins/"+artifact.artifactId+"/"+version+"/"+artifact.artifactId+".hpi");
+        return new URL(pluginSite+artifact.artifactId+"/"+version+"/"+artifact.artifactId+".hpi");
     }
 
     /**
@@ -162,6 +163,14 @@ public class HPI extends MavenArtifact {
             // ignore and move on
             System.err.println("Unparsable developer info: '" + devs.substring(totalMatched)+"'");
         return r;
+    }
+
+    public String getPluginSite() {
+        return pluginSite;
+    }
+
+    public void setPluginSite(String pluginSite) {
+        this.pluginSite = pluginSite;
     }
 
     boolean isEqualsTo(String groupId, String artifactId, String version) {
