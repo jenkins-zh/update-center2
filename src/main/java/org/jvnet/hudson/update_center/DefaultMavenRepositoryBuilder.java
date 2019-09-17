@@ -23,6 +23,8 @@
  */
 package org.jvnet.hudson.update_center;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.net.URL;
 
 public class DefaultMavenRepositoryBuilder {
@@ -34,9 +36,18 @@ public class DefaultMavenRepositoryBuilder {
     private static MavenRepositoryImpl instance;
     
     public static MavenRepositoryImpl getInstance() throws Exception {
+        return DefaultMavenRepositoryBuilder.getInstance(null);
+    }
+
+    public static MavenRepositoryImpl getInstance(String mavenRepository) throws Exception {
         if (instance == null) {
             instance = new MavenRepositoryImpl();
-            instance.addRemoteRepository("public", new URL("http://repo.jenkins-ci.org/public/"));
+
+            if (StringUtils.isEmpty(mavenRepository)) {
+                mavenRepository = "http://repo.jenkins-ci.org/public/";
+            }
+
+            instance.addRemoteRepository("public", new URL(mavenRepository));
         }
         return instance;
     }

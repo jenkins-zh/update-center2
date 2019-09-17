@@ -185,6 +185,9 @@ public class Main {
     @Option(name="-whitelist",usage="White list for plugins")
     public File whitelist = null;
 
+    @Option(name="-mavenRepository",usage="Maven repository for store the plugins")
+    public String mavenRepository = null;
+
     private Signer signer = new Signer();
 
     public static final String EOL = System.getProperty("line.separator");
@@ -375,7 +378,6 @@ public class Main {
     }
 
     protected MavenRepository createRepository() throws Exception {
-
         MavenRepositoryImpl base = DefaultMavenRepositoryBuilder.getInstance();
 
         // ensure that we reset plugin filters between batch executions
