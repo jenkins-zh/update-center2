@@ -7,6 +7,7 @@ import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.IOUtils;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 public class WarningsTest {
+    @Test
     public void testValidJsonFile() throws Exception {
         String warningsText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("warnings.json"));
         JSONArray warnings = JSONArray.fromObject(warningsText);
@@ -61,7 +63,7 @@ public class WarningsTest {
             }
 
             Warning warning = new Warning();
-            warning.id = o.getString("id");
+            warning.id = o.getString("url") + " / " + o.getString("id");
 
             JSONArray versions = o.getJSONArray("versions");
             for (int j = 0 ; j < versions.size() ; j++) {
@@ -106,12 +108,13 @@ public class WarningsTest {
         }
     }
 
+    @Test
     public void testWarningsAgainstReleaseHistory() throws IOException {
 
         Map<String, List<Warning>> warnings = loadPluginWarnings();
 
         HttpClient hc = new HttpClient();
-        GetMethod request = new GetMethod("https://updates.jenkins-ci.org/release-history.json");
+        GetMethod request = new GetMethod("https://updates.jenkins.io/release-history.json");
 
         hc.executeMethod(request);
 

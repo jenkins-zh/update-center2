@@ -28,12 +28,15 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.jvnet.hudson.update_center.impl.pluginFilter.JavaVersionPluginFilter;
+import org.jvnet.hudson.update_center.util.JavaSpecificationVersion;
 import org.kohsuke.args4j.ClassParser;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.OptionHandler;
 
+import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -166,6 +169,12 @@ public class Main {
 
     @Option(name="-skip-release-history",usage="Skip generation of release history")
     public boolean skipReleaseHistory;
+
+    @Option(name = "-javaVersion",usage = "Target Java version for the update center. " +
+            "Plugins will be excluded if their minimum Java version does not match. " +
+            "If not set, required Java version will be ignored")
+    @CheckForNull
+    public String javaVersion;
 
     @Option(name="-skip-plugin-versions",usage="Skip generation of plugin versions")
     public boolean skipPluginVersions;
@@ -369,7 +378,23 @@ public class Main {
     }
 
     protected MavenRepository createRepository() throws Exception {
-        MavenRepository repo = DefaultMavenRepositoryBuilder.getInstance(mavenRepository);
+        MavenRepositoryImpl base = DefaultMavenRepositoryBuilder.getInstance();
+
+        // ensure that we reset plugin filters between batch executions
+        base.resetPluginFilters();
+
+        if (javaVersion != null) {
+            JavaSpecificationVersion specificationVersion = new JavaSpecificationVersion(this.javaVersion);
+            base.addPluginFilter(new JavaVersionPluginFilter(specificationVersion));
+            System.out.println("INFO: Filtering plugins for compatibility with Java version " + specificationVersion);
+        } else {
+            System.out.println("WARNING: Target Java version is not defined, version filters will not be applied");
+            //TODO: Default to the version actually supported by the target core if `-cap` is set?
+            // base.addPluginFilter(new JavaVersionPluginFilter(JavaVersionUtil.JAVA_8));
+        }
+
+        MavenRepository repo = base;
+        // TODO: Maven repository implementations below can be reworked to filters
         if (maxPlugins!=null)
             repo = new TruncatedMavenRepository(repo,maxPlugins);
         if (experimentalOnly)
