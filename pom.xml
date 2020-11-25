@@ -157,7 +157,7 @@
     <dependency><!-- this version doesn't have ugly snapshot Google collection dependency -->
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-container-default</artifactId>
-      <version>1.5.5</version>
+      <version>2.1.0</version>
       <exclusions>
         <exclusion>
           <groupId>com.google.collections</groupId>
